@@ -9,7 +9,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///villain.db"
 db = SQLAlchemy(app)
 
 class Villain(db.Model):
-  id = db.Column(db.Integer, primary_kay=True)
+  id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(80), unique=True, nullable=False)
   description = db.Column(db.String(250), nullable=False)
   interests = db.Column(db.String(250), nullable=False)
@@ -27,7 +27,7 @@ with app.app_context():
 def hello_world():
   return render_template("villain.html")
 
-@app.route("/add" methods=["GET"])
+@app.route("/add", methods=["GET"])
 def add_villain():
   return render_template("addvillain.html", errors=[])
 
@@ -55,7 +55,7 @@ def add_user():
     new_villain = Villain(name=name, description=description, interests=interests, url=image)
     db.session.add(new_villain)
     db.session.commit()
-    return render_template("villain.html" villains=Villain.query.all())
+    return render_template("villain.html", villains=Villain.query.all())
 
 # Run the flask server
 if __name__ == "__main__":
