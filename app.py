@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -19,9 +19,43 @@ class Villain(db.Model):
   def __ref__(self):
     return "<Villain " + self.name + ">"
 
+with app.app_context():
+  db.create_all()
+  db.session.commit()
+
 @app.route("/")
 def hello_world():
   return render_template("villain.html")
+
+@app.route("/add" methods=["GET"])
+def add_villain():
+  return render_template("addvillain.html", errors=[])
+
+@app.route("/addVillain", methods=["POST"])
+def add_user():
+  errors=[]
+  name = request.form.get("name")
+  if not name:
+    errors.append("Oops! Looks like you forgot a name!")
+  description = request.form.get("description")
+  if not description:
+    errors.append("Oops! Looks like you forgot a description!")
+  interests = request.form.get("interests")
+  if not interests:
+    errors.append("Oops! Looks like you forgot some interests!")
+  image = request.form.get("url")
+  if not image:
+    errors.append("Oops! Looks like you forgot an image!")
+  villain = Villain.query.filter_by(name=name).first()
+  if villain:
+    errors.append("Oops! A villain with that name already exists!")
+  if errors:
+    return render_template("addVillain.html", errors=errors)
+  else:
+    new_villain = Villain(name=name, description=description, interests=interests, url=image)
+    db.session.add(new_villain)
+    db.session.commit()
+    return render_template("villain.html" villains=Villain.query.all())
 
 # Run the flask server
 if __name__ == "__main__":
